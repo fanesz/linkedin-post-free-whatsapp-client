@@ -7,17 +7,17 @@ import (
 	"os/signal"
 	"syscall"
 
-	_ "github.com/mattn/go-sqlite3"
 	"github.com/mdp/qrterminal"
 	"go.mau.fi/whatsmeow"
 	"go.mau.fi/whatsmeow/proto/waE2E"
 	"go.mau.fi/whatsmeow/store/sqlstore"
 	"go.mau.fi/whatsmeow/types"
 	"google.golang.org/protobuf/proto"
+	_ "modernc.org/sqlite"
 )
 
 func main() {
-	container, err := sqlstore.New("sqlite3", "file:examplestore.db?_foreign_keys=on", nil)
+	container, err := sqlstore.New("sqlite", "file:examplestore.db?_pragma=foreign_keys(1)", nil)
 	if err != nil {
 		panic(fmt.Errorf("failed to initialize sqlstore: %w", err))
 	}
@@ -31,7 +31,7 @@ func main() {
 	if client.Store.ID == nil {
 		qrChan, _ := client.GetQRChannel(context.Background())
 		err = client.Connect()
-		if client.Connect() != nil {
+		if err != nil {
 			panic(err)
 		}
 		for evt := range qrChan {
